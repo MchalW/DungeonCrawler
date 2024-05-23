@@ -1,7 +1,24 @@
 import java.util.Scanner;
-public class DungeonCrawler {
-
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Color;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+public class DungeonCrawler extends JFrame{
+    Player player = new Player();
+    int titleSize = 32;
     DungeonCrawler(){
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        GamePanel gamePanel = new GamePanel();
+
+
+        int currentFloor = 1;
+
         Room start = new Room();
         start.fill(1,1,15,15, "X");
         start.fill(2,2,14,14, "O");
@@ -14,8 +31,19 @@ public class DungeonCrawler {
         corridorLR.exits[1] = true;
         corridorLR.exits[0] = true;
 
+        Room cross = new Room();
+        cross.fill(5,1,11,15, "X");
+        cross.fill(1,5,15,11, "X");
+        cross.fill(6,1,10,15, "O");
+        cross.fill(1,6,15,10, "O");
+        cross.exits[0] = true;
+        cross.exits[1] = true;
+        cross.exits[2] = true;
+        cross.exits[3] = true;
+
         start.rooms[1] = corridorLR;
         corridorLR.rooms[0] = start;
+        corridorLR.rooms[1] = cross;
 
         Scanner reader = new Scanner(System.in);
 
@@ -26,7 +54,7 @@ public class DungeonCrawler {
             System.out.println("incorrect character: ");
             return;
         }
-        Player player = new Player();
+
         player.x = 8;
         player.y = 8;
         player.appearance = character;
@@ -42,56 +70,20 @@ public class DungeonCrawler {
 
         Room currentRoom = start;
         currentRoom.writeRoom(player.x, player.y, character);
-        while(working){
-            nextMove = "";
-            try {
-                nextMove = reader.nextLine();
-                if(!nextMove.equals("w") && !nextMove.equals("s") && !nextMove.equals("a") && !nextMove.equals("d")){
-                    working = false;
-                }
-            }catch (Exception e){
-                working = false;
-            }
 
-            if(nextMove.equals("w")){
-                if(player.x + 1 > 15){
-                    currentRoom = currentRoom.rooms[2];
-                    player.x = 0;
-                }
-                if(!currentRoom.roomTexture[player.x-2][player.y-1].equals("X")){
-                    player.x--;
-                }
+        add(gamePanel);
+        addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                gamePanel.handleKeyPress(e, currentRoom, player);
             }
-            else if(nextMove.equals("s")){
-                if(player.x - 1 < 1){
-                    currentRoom = currentRoom.rooms[3];
-                    player.y = 16;
-                }
-                if(!currentRoom.roomTexture[player.x][player.y-1].equals("X")){
-                    player.x++;
-                }
-            }
-            else if(nextMove.equals("a")){
-                if(player.y - 1 < 1){
-                    currentRoom = currentRoom.rooms[0];
-                    player.y = 16;
-                }
-                if(!currentRoom.roomTexture[player.x-1][player.y-2].equals("X")){
-                    player.y--;
-                }
-            }
-            else if(nextMove.equals("d")){
-                if(player.y + 1 > 15){
-                    currentRoom = currentRoom.rooms[1];
-                    player.y = 0;
-                }
-                if(!currentRoom.roomTexture[player.x-1][player.y].equals("X")){
-                    player.y++;
-                }
-            }
-            currentRoom.writeRoom(player.x, player.y, character);
-            System.out.println(player.x+", "+ player.y);
-        }
+        });
 
+
+        pack();
+        setVisible(true);
     }
+
+
 }
+
