@@ -27,11 +27,10 @@ public class Room {
         }
     }
 
-    void writeRoom(int playerX, int playerY, String player){
+    void writeRoom(int playerX, int playerY){
         for(int x = 0; x < 15; x++){
             for(int y = 0; y < 15; y++){
                 if(x == playerX - 1 && y == playerY - 1){
-                    System.out.print("\u001B[35m"+player+"\u001B[0m");
                 }
                 else if(roomTexture[x][y] == "X"){
                     System.out.print("\u001B[31m"+roomTexture[x][y]+"\u001B[0m");
