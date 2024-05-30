@@ -26,10 +26,10 @@ public class GamePanel extends JPanel {
                     g.setColor(Color.CYAN);
                     g.fillRect(player.y * titleSize, player.x * titleSize, titleSize, titleSize);
                 } else if (roomTexture[x][y] == "X") {
-                    g.setColor(Color.RED);
+                    g.setColor(Color.ORANGE);
                     g.fillRect(y * titleSize, x * titleSize, titleSize, titleSize);
                 } else if (roomTexture[x][y] == "0") {
-                    g.setColor(Color.BLUE);
+                    g.setColor(Color.BLACK);
                     g.fillRect(y * titleSize, x * titleSize, titleSize, titleSize);
                 } else {
                     g.setColor(Color.WHITE);
