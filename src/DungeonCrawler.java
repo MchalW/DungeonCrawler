@@ -20,6 +20,7 @@ public class DungeonCrawler extends JFrame{
     Room TRoad;
     Room turn;
     Room ending;
+    int[] exit;
     Random rand = new Random();
     List<Room> presets = new ArrayList<Room>();
 
@@ -97,7 +98,7 @@ public class DungeonCrawler extends JFrame{
         currentFloor.floorMap[2][2] = start;
         currentFloor.floorMap[2][3] = corridorLR;
         currentFloor.floorMap[2][4] = turn;
-        int[] playerPosition = {0, 5};
+        int[] playerPosition = {rand.nextInt(7), rand.nextInt(7)};
 
         presets.add(turn);
         presets.add(corridorLR);
@@ -109,7 +110,7 @@ public class DungeonCrawler extends JFrame{
         player.x = 7;
         player.y = 7;
 
-        generateFloor(0,5);
+        generateFloor(playerPosition[0],playerPosition[1]);
         boolean working = true;
         String nextMove;
         System.out.println("Movement instructions: ");
@@ -120,7 +121,7 @@ public class DungeonCrawler extends JFrame{
 
         currentRoom = testFloor.floorMap[playerPosition[0]][playerPosition[1]];
 
-        gamePanel.initializemap(currentRoom, player);
+        gamePanel.initializemap(currentRoom, player, exit[0], exit[1], playerPosition[0], playerPosition[1]);
         add(gamePanel);
         addKeyListener(new KeyAdapter() {
             @Override
@@ -135,25 +136,25 @@ public class DungeonCrawler extends JFrame{
                 if(XYbefore[0] == 14){
                     currentRoom = testFloor.floorMap[playerPosition[0] + 1][playerPosition[1]];
                     playerPosition[0]++;
-                    gamePanel.initializemap(currentRoom, player);
+                    gamePanel.initializemap(currentRoom, player, exit[0], exit[1], playerPosition[0], playerPosition[1]);
                     gamePanel.repaint();
                 }
                 else if(XYbefore[0] == -14){
                     currentRoom = testFloor.floorMap[playerPosition[0] - 1][playerPosition[1]];
                     playerPosition[0]--;
-                    gamePanel.initializemap(currentRoom, player);
+                    gamePanel.initializemap(currentRoom, player, exit[0], exit[1], playerPosition[0], playerPosition[1]);
                     gamePanel.repaint();
                 }
                 else if(XYbefore[1] == 14){
                     currentRoom = testFloor.floorMap[playerPosition[0]][playerPosition[1] + 1];
                     playerPosition[1]++;
-                    gamePanel.initializemap(currentRoom, player);
+                    gamePanel.initializemap(currentRoom, player, exit[0], exit[1], playerPosition[0], playerPosition[1]);
                     gamePanel.repaint();
                 }
                 else if(XYbefore[1] == -14){
                     currentRoom = testFloor.floorMap[playerPosition[0]][playerPosition[1] - 1];
                     playerPosition[1]--;
-                    gamePanel.initializemap(currentRoom, player);
+                    gamePanel.initializemap(currentRoom, player, exit[0], exit[1], playerPosition[0], playerPosition[1]);
                     gamePanel.repaint();
                 }
                 System.out.println(playerPosition[0]+", "+playerPosition[1]);
@@ -177,16 +178,16 @@ public class DungeonCrawler extends JFrame{
         room.exits[1] = false;
         room.exits[2] = false;
         room.exits[3] = false;
-        if(spareRoom.exits[0] == true){
+        if(spareRoom.exits[0]){
             room.exits[2] = true;
         }
-        if(spareRoom.exits[1] == true){
+        if(spareRoom.exits[1]){
             room.exits[3] = true;
         }
-        if(spareRoom.exits[2] == true){
+        if(spareRoom.exits[2]){
             room.exits[1] = true;
         }
-        if(spareRoom.exits[3] == true){
+        if(spareRoom.exits[3]){
             room.exits[0] = true;
         }
         return room;
@@ -194,8 +195,7 @@ public class DungeonCrawler extends JFrame{
 
     void generateFloor(int x, int y){
         testFloor = new Floor();
-        testFloor.floorMap[x][y] = ending;
-        testFloor.floorMap[1][3] = TRoad;
+        testFloor.floorMap[x][y] = start;
         int choice = rand.nextInt(3);
         System.out.println(choice);
         testFloor.floorMap[x][y] = turnClockwise(testFloor.floorMap[x][y]);
@@ -203,19 +203,34 @@ public class DungeonCrawler extends JFrame{
         while (choice != 1){
             choice = rand.nextInt(6);
             System.out.println(choice);
-            //testFloor.floorMap[x][y] = turnClockwise(testFloor.floorMap[x][y]);
+            testFloor.floorMap[x][y] = turnClockwise(testFloor.floorMap[x][y]);
         };
-//        try{
-//            System.out.println(x+" coords "+y);
-//            if(testFloor.floorMap[x][y].exits[1] && testFloor.floorMap[x][y+1] == null){
-//                generateRoom(x, y+1, 0);
-//            }
-//        }
-//        catch(Exception e){
-//            System.out.println("Error");
-//        }
+        try{
+            System.out.println(x+" coords "+y);
+            if(testFloor.floorMap[x][y].exits[1] && testFloor.floorMap[x][y+1] == null){
+                generateRoom(x, y+1, 0);
+            }
+        }
+        catch(Exception e){
+            System.out.println("Error");
+        }
+        if(testFloor.floorMap[x][y].exits[0] && testFloor.floorMap[x][y-1] == null){
+            generateRoom(x, y-1, 0);
+        }
         if(testFloor.floorMap[x][y].exits[1] && testFloor.floorMap[x][y+1] == null){
-            generateRoom(x, y+1, 0);
+            generateRoom(x, y+1, 1);
+        }
+        if(testFloor.floorMap[x][y].exits[2] && testFloor.floorMap[x-1][y] == null){
+            generateRoom(x-1, y, 2);
+        }
+        if(testFloor.floorMap[x][y].exits[3] && testFloor.floorMap[x+1][y] == null){
+            generateRoom(x+1, y, 3);
+        }
+        while(true){
+            exit = new int[] {rand.nextInt(testFloor.floorMap.length),rand.nextInt(testFloor.floorMap.length)};
+            if(testFloor.floorMap[exit[0]][exit[1]] != null){
+                break;
+            }
         }
     }
 
@@ -278,32 +293,79 @@ public class DungeonCrawler extends JFrame{
                 System.out.println(testFloor.floorMap[x][y].exits[0]+", "+testFloor.floorMap[x][y].exits[1]+", "+
                         testFloor.floorMap[x][y].exits[2]+", "+testFloor.floorMap[x][y].exits[3]);
                 boolean found = true;
-                if(testFloor.floorMap[x][y].exits[0]){
-                    if(y - 1 == -1){found = false;}
-                    else if(testFloor.floorMap[x][y - 1] == null){}
-                    else if(!testFloor.floorMap[x][y - 1].exits[1]){found = false;}
+//                if(testFloor.floorMap[x][y].exits[0]){
+//                    if(y - 1 == -1){found = false;}
+//                    else if(testFloor.floorMap[x][y - 1] == null){}
+//                    else if(!testFloor.floorMap[x][y - 1].exits[1]){found = false;}
+//                }
+//                if(testFloor.floorMap[x][y].exits[1]){
+//                    if(y + 1 == 7){found = false;}
+//                    else if(testFloor.floorMap[x][y + 1] == null){}
+//                    else if(!testFloor.floorMap[x][y + 1].exits[0]){found = false;}
+//                }
+//                if(testFloor.floorMap[x][y].exits[2]){
+//                    if(x - 1 == -1){found = false;}
+//                    else if(testFloor.floorMap[x - 1][y] == null){}
+//                    else if(!testFloor.floorMap[x - 1][y].exits[3]){found = false;}
+//                }
+//                if(testFloor.floorMap[x][y].exits[3]){
+//                    if(x + 1 == 7){found = false;}
+//                    else if(testFloor.floorMap[x + 1][y] == null){}
+//                    else if(!testFloor.floorMap[x + 1][y].exits[2]){found = false;}
+//                }
+                if(y - 1 != -1){
+                    if(testFloor.floorMap[x][y - 1] != null){
+                        if(testFloor.floorMap[x][y - 1].exits[1] && !testFloor.floorMap[x][y].exits[0]){found = false;
+                            System.out.println("Fail not matching");}
+                        else if(!testFloor.floorMap[x][y - 1].exits[1] && testFloor.floorMap[x][y].exits[0]){found = false;
+                            System.out.println("Fail not matching");}
+                    }
                 }
-                if(testFloor.floorMap[x][y].exits[1]){
-                    if(y + 1 == 7){found = false;}
-                    else if(testFloor.floorMap[x][y + 1] == null){}
-                    else if(!testFloor.floorMap[x][y + 1].exits[0]){found = false;}
+                else{
+                    if(testFloor.floorMap[x][y].exits[0]){found = false; System.out.println("Fail out of bounds");}
                 }
-                if(testFloor.floorMap[x][y].exits[2]){
-                    if(x - 1 == -1){found = false;}
-                    else if(testFloor.floorMap[x - 1][y] == null){}
-                    else if(!testFloor.floorMap[x - 1][y].exits[3]){found = false;}
+                if(y + 1 != 7){
+                    if(testFloor.floorMap[x][y + 1] != null){
+                        if(testFloor.floorMap[x][y + 1].exits[0] && !testFloor.floorMap[x][y].exits[1]){found = false;
+                            System.out.println("Fail not matching");}
+                        else if(!testFloor.floorMap[x][y + 1].exits[0] && testFloor.floorMap[x][y].exits[1]){found = false;
+                            System.out.println("Fail not matching");}
+                    }
                 }
-                if(testFloor.floorMap[x][y].exits[3]){
-                    if(x + 1 == 7){found = false;}
-                    else if(testFloor.floorMap[x + 1][y] == null){}
-                    else if(!testFloor.floorMap[x + 1][y].exits[2]){found = false;}
+                else{
+                    if(testFloor.floorMap[x][y].exits[1]){found = false; System.out.println("Fail out of bounds");}
                 }
+                if(x - 1 != -1){
+                    if(testFloor.floorMap[x - 1][y] != null){
+                        if(testFloor.floorMap[x - 1][y].exits[3] && !testFloor.floorMap[x][y].exits[2]){found = false;
+                            System.out.println("Fail not matching");}
+                        else if(!testFloor.floorMap[x - 1][y].exits[3] && testFloor.floorMap[x][y].exits[2]){found = false;
+                            System.out.println("Fail not matching");}
+                    }
+                }
+                else{
+                    if(testFloor.floorMap[x][y].exits[2]){found = false; System.out.println("Fail out of bounds");}
+                }
+                if(x + 1 != 7){
+                    if(testFloor.floorMap[x + 1][y] != null){
+                        if(testFloor.floorMap[x + 1][y].exits[2] && !testFloor.floorMap[x][y].exits[3]){found = false;
+                            System.out.println("Fail not matching");}
+                        else if(!testFloor.floorMap[x + 1][y].exits[2] && testFloor.floorMap[x][y].exits[3]){found = false;
+                            System.out.println("Fail not matching");}
+                    }
+                }
+                else{
+                    if(testFloor.floorMap[x][y].exits[3]){found = false; System.out.println("Fail out of bounds");}
+                }
+
                 if(found){
                     isSet = true;
                     break;
                 }
-                curWay++;
-                testFloor.floorMap[x][y] = turnClockwise(testFloor.floorMap[x][y]);
+                else{
+                    curWay++;
+                    testFloor.floorMap[x][y] = turnClockwise(testFloor.floorMap[x][y]);
+                }
             }
             if(isSet){
                 break;
@@ -311,7 +373,7 @@ public class DungeonCrawler extends JFrame{
             i++;
             tempRooms.remove(number);
         }
-
+        generateAll();
         if(testFloor.floorMap[x][y].exits[0]){
             if(testFloor.floorMap[x][y - 1] == null){
                 generateRoom(x, y-1, 1);
@@ -330,6 +392,30 @@ public class DungeonCrawler extends JFrame{
         if(testFloor.floorMap[x][y].exits[3]){
             if(testFloor.floorMap[x + 1][y] == null){
                 generateRoom(x+1, y, 2);
+            }
+        }
+    }
+
+    void generateAll(){
+        for(int i = 0; i < testFloor.floorMap.length; i++){
+            for(int j = 0; j < 15; j++){
+                for(int k = 0; k < testFloor.floorMap[i].length; k++){
+                    for(int l = 0; l < 15; l++){
+                        if(testFloor.floorMap[i][k] == null){
+                            System.out.print("\033[0;31m"+"N"+"\033[0;37m");
+                        }
+                        else if(testFloor.floorMap[i][k].roomTexture[j][l].equals("X")){
+                            System.out.print("\033[0;33m"+"X"+"\033[0;37m");
+                        }
+                        else if(testFloor.floorMap[i][k].roomTexture[j][l].equals("O")){
+                            System.out.print("\033[0;30m"+"X"+"\033[0;37m");
+                        }
+                        else{
+                            System.out.print(testFloor.floorMap[i][k].roomTexture[j][l]);
+                        }
+                    }
+                }
+                System.out.println("");
             }
         }
     }

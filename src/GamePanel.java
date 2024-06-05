@@ -5,6 +5,10 @@ import java.awt.event.KeyEvent;
 public class GamePanel extends JPanel {
     String[][] roomTexture;
     Player player;
+    int exitX;
+    int exitY;
+    int currentRoomX;
+    int currentRoomY;
 
     int titleSize = 32;
     GamePanel(){
@@ -12,9 +16,13 @@ public class GamePanel extends JPanel {
         setBackground(Color.BLACK);
     }
 
-    public void initializemap(Room currentRoom, Player play) {
+    public void initializemap(Room currentRoom, Player play, int exX, int exY, int curX, int curY) {
         roomTexture = currentRoom.roomTexture;
         player = play;
+        exitX = exX;
+        exitY = exY;
+        currentRoomX = curX;
+        currentRoomY = curY;
     }
 
     protected void paintComponent(Graphics g) {
@@ -35,9 +43,15 @@ public class GamePanel extends JPanel {
                     g.setColor(Color.WHITE);
                     g.fillRect(y * titleSize, x * titleSize, titleSize, titleSize);
                 }
+                if(currentRoomX == exitX && currentRoomY == exitY){
+                    g.setColor(Color.RED);
+                    g.fillRect(7 * titleSize, 7 * titleSize, titleSize, titleSize);
+                }
             }
 
         }
+        System.out.println(currentRoomX+", , "+currentRoomY);
+        System.out.println(exitX+", , "+exitY);
     }
 
     public void handleKeyPress(KeyEvent e, Room currentRoom, Player player) {
@@ -50,6 +64,7 @@ public class GamePanel extends JPanel {
                 }
                 catch (IndexOutOfBoundsException up){
                     player.x = 14;
+                    currentRoomX--;
                 }
                 break;
             case KeyEvent.VK_DOWN:
@@ -60,6 +75,7 @@ public class GamePanel extends JPanel {
                 }
                 catch (IndexOutOfBoundsException up){
                 player.x = 0;
+                currentRoomX++;
                 }
             break;
             case KeyEvent.VK_LEFT:
@@ -70,6 +86,7 @@ public class GamePanel extends JPanel {
                 }
                 catch (IndexOutOfBoundsException up){
                     player.y = 14;
+                    currentRoomY--;
                 }
                 break;
             case KeyEvent.VK_RIGHT:
@@ -80,7 +97,8 @@ public class GamePanel extends JPanel {
                 }
                 catch (IndexOutOfBoundsException up){
                     player.y = 0;
-                    initializemap(currentRoom, player);                }
+                    currentRoomY++;
+                    initializemap(currentRoom, player, exitX, exitY, currentRoomX, currentRoomY);                }
                 break;
         }
         this.repaint();
