@@ -9,6 +9,8 @@ public class GamePanel extends JPanel {
     int exitY;
     int currentRoomX;
     int currentRoomY;
+    int getCurrentFloorNum;
+    int color;
 
     int titleSize = 32;
     GamePanel(){
@@ -16,13 +18,14 @@ public class GamePanel extends JPanel {
         setBackground(Color.BLACK);
     }
 
-    public void initializemap(Room currentRoom, Player play, int exX, int exY, int curX, int curY) {
+    public void initializemap(Room currentRoom, Player play, int exX, int exY, int curX, int curY, int curColor) {
         roomTexture = currentRoom.roomTexture;
         player = play;
         exitX = exX;
         exitY = exY;
         currentRoomX = curX;
         currentRoomY = curY;
+        color = curColor;
     }
 
     protected void paintComponent(Graphics g) {
@@ -34,7 +37,35 @@ public class GamePanel extends JPanel {
                     g.setColor(Color.CYAN);
                     g.fillRect(player.y * titleSize, player.x * titleSize, titleSize, titleSize);
                 } else if (roomTexture[x][y] == "X") {
-                    g.setColor(Color.ORANGE);
+                    switch (color){
+                        case 0:
+                            g.setColor(Color.ORANGE);
+                            break;
+                        case 1:
+                            g.setColor(Color.RED);
+                            break;
+                        case 2:
+                            g.setColor(Color.YELLOW);
+                            break;
+                        case 3:
+                            g.setColor(Color.BLUE);
+                            break;
+                        case 4:
+                            g.setColor(Color.GREEN);
+                            break;
+                        case 5:
+                            g.setColor(Color.LIGHT_GRAY);
+                            break;
+                        case 6:
+                            g.setColor(Color.PINK);
+                            break;
+                        case 7:
+                            g.setColor(Color.MAGENTA);
+                            break;
+                        case 8:
+                            g.setColor(new Color(139,69,19));
+                            break;
+                    }
                     g.fillRect(y * titleSize, x * titleSize, titleSize, titleSize);
                 } else if (roomTexture[x][y] == "0") {
                     g.setColor(Color.BLACK);
@@ -50,16 +81,20 @@ public class GamePanel extends JPanel {
             }
 
         }
-        System.out.println(currentRoomX+", , "+currentRoomY);
-        System.out.println(exitX+", , "+exitY);
+        //System.out.println(currentRoomX+", , "+currentRoomY);
+        //System.out.println(exitX+", , "+exitY);
     }
 
-    public void handleKeyPress(KeyEvent e, Room currentRoom, Player player) {
+    public void handleKeyPress(KeyEvent e, Room currentRoom, Player player, int floorNum) {
+        getCurrentFloorNum = floorNum;
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
                 try{
                     if(!currentRoom.roomTexture[player.x-1][player.y].equals("X")){
                         player.x--;
+                    }
+                    if(currentRoomX == exitX && currentRoomY == exitY && player.x == 7 &&  player.y == 7){
+                        getCurrentFloorNum++;
                     }
                 }
                 catch (IndexOutOfBoundsException up){
@@ -72,6 +107,9 @@ public class GamePanel extends JPanel {
                     if(!currentRoom.roomTexture[player.x+1][player.y].equals("X")){
                         player.x++;
                     }
+                    if(currentRoomX == exitX && currentRoomY == exitY && player.x == 7 &&  player.y == 7){
+                        getCurrentFloorNum++;
+                    }
                 }
                 catch (IndexOutOfBoundsException up){
                 player.x = 0;
@@ -82,6 +120,9 @@ public class GamePanel extends JPanel {
                 try{
                     if(!currentRoom.roomTexture[player.x][player.y-1].equals("X")){
                         player.y--;
+                    }
+                    if(currentRoomX == exitX && currentRoomY == exitY && player.x == 7 &&  player.y == 7){
+                        getCurrentFloorNum++;
                     }
                 }
                 catch (IndexOutOfBoundsException up){
@@ -94,11 +135,14 @@ public class GamePanel extends JPanel {
                     if(!currentRoom.roomTexture[player.x][player.y+1].equals("X")){
                         player.y++;
                     }
+                    if(currentRoomX == exitX && currentRoomY == exitY && player.x == 7 &&  player.y == 7){
+                        getCurrentFloorNum++;
+                    }
                 }
                 catch (IndexOutOfBoundsException up){
                     player.y = 0;
                     currentRoomY++;
-                    initializemap(currentRoom, player, exitX, exitY, currentRoomX, currentRoomY);                }
+                    initializemap(currentRoom, player, exitX, exitY, currentRoomX, currentRoomY,color);                }
                 break;
         }
         this.repaint();
