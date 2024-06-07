@@ -21,6 +21,7 @@ public class Room {
     Room[] rooms =     {null, null, null, null};
 
     int numOfExits;
+    int previous;
     int shortestWay;
     void fill(int leftUpX, int leftUpY, int rightDownX, int rightDownY, String material){
         for(int x = leftUpX; x <= rightDownX; x++){

@@ -101,7 +101,7 @@ public class DungeonCrawler extends JFrame{
         currentFloor.floorMap[2][2] = start;
         currentFloor.floorMap[2][3] = corridorLR;
         currentFloor.floorMap[2][4] = turn;
-        playerPosition = new int[]{rand.nextInt(7), rand.nextInt(7)};
+        playerPosition = new int[]{rand.nextInt(5) + 1, rand.nextInt(5) + 1};
 
         presets.add(turn);
         presets.add(corridorLR);
@@ -116,11 +116,6 @@ public class DungeonCrawler extends JFrame{
         generateFloor(playerPosition[0],playerPosition[1]);
         boolean working = true;
         String nextMove;
-        System.out.println("Movement instructions: ");
-        System.out.println("W - Up");
-        System.out.println("S - Down");
-        System.out.println("A - Left");
-        System.out.println("D - Rigth");
 
         currentRoom = testFloor.floorMap[playerPosition[0]][playerPosition[1]];
 
@@ -164,7 +159,7 @@ public class DungeonCrawler extends JFrame{
 
                 if(currentFloorNum < gamePanel.getCurrentFloorNum){
                     currentFloorNum++;
-                    playerPosition = new int[]{rand.nextInt(7), rand.nextInt(7)};
+                    playerPosition = new int[]{rand.nextInt(5) + 1, rand.nextInt(5) + 1};
                     player.x = 7;
                     player.y = 7;
                     generateFloor(playerPosition[0],playerPosition[1]);
@@ -263,6 +258,8 @@ public class DungeonCrawler extends JFrame{
                 break;
             }
         }
+        //generateAll();
+        findExit(exit[0], exit[1],playerPosition[0], playerPosition[1]);
     }
 
     private void generateRoom(int x, int y, int entr) {
@@ -416,7 +413,6 @@ public class DungeonCrawler extends JFrame{
             i++;
             tempRooms.remove(number);
         }
-        //generateAll();
         if(testFloor.floorMap[x][y].exits[0]){
             if(testFloor.floorMap[x][y - 1] == null){
                 generateRoom(x, y-1, 1);
@@ -463,16 +459,170 @@ public class DungeonCrawler extends JFrame{
         }
     }
 
-    void findExit(int x, int y){
+
+    int[][] findingWay;
+    int[][] previous;
+    void findExit(int x, int y, int currX, int currY){
+        findingWay = new int[][]{
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0}};
+
+        previous = new int[][]{
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0}};
+        List<Integer> shortest = new ArrayList<Integer>() {};
         for(int i = 0; i < testFloor.floorMap.length; i++){
             for(int j = 0; j < testFloor.floorMap.length; j++){
-                testFloor.floorMap[i][j].shortestWay = 0;
+                if(testFloor.floorMap[i][j] != null){
+                    findingWay[i][j] = 99;
+                    previous[i][j] = -1;
+                }
+                else{
+                    findingWay[i][j] = -1;
+                }
             }
         }
-        findPart(0, x, y);
+        findingWay[currX][currY] = 0;
+        findPart(currX, currY, 0);
+        int curX = x;
+        int curY = y;
+        while (curX != currX || curY != currY){
+            shortest.add(previous[curX][curY]);
+            if(previous[curX][curY] == 0){
+                curY--;
+            }
+            else if(previous[curX][curY] == 1){
+                curY++;
+            }
+            else if(previous[curX][curY] == 2){
+                curX--;
+            }
+            else if(previous[curX][curY] == 3){
+                curX++;
+            }
+        }
+
+        System.out.println("Jak wyjść: ");
+
+        for(int i = shortest.size() - 1; i >= 0; i--){
+            switch (shortest.get(i)){
+                case 0:
+                    System.out.print("W prawo, ");
+                    break;
+                case 1:
+                    System.out.print("W lewo, ");
+                    break;
+                case 2:
+                    System.out.print("W dół, ");
+                    break;
+                case 3:
+                    System.out.print("W górę, ");
+                    break;
+            }
+        }
+        System.out.println("");
+        System.out.println("");
     }
 
-    void findPart(int wayWeight,int x, int y){
+    void findPart(int x, int y, int previousNumb){
+        findingWay[x][y] = previousNumb;
+//        System.out.println(testFloor.floorMap[x][y].exits[0]+", "+testFloor.floorMap[x][y].exits[1]+", "+
+//                testFloor.floorMap[x][y].exits[2]+", "+testFloor.floorMap[x][y].exits[3]);
+//        if(testFloor.floorMap[x][y].exits[0]){
+//            System.out.println(testFloor.floorMap[x][y-1].shortestWay+", "+(previousNumb + 1)
+//            +", "+x+", "+(y-1));
+//            if(testFloor.floorMap[x][y-1].shortestWay > (previousNumb + 1)){
+//                testFloor.floorMap[x][y-1].shortestWay = previousNumb + 1;
+//                testFloor.floorMap[x][y-1].previous = 1;
+//                findPart(x, y-1, previousNumb+1);
+//            }
+//        }
+//        if(testFloor.floorMap[x][y].exits[1]){
+//            System.out.println(testFloor.floorMap[x][y+1].shortestWay+", "+(previousNumb + 1)
+//                    +", "+x+", "+(y+1));
+//            if(testFloor.floorMap[x][y+1].shortestWay > (previousNumb + 1)){
+//                testFloor.floorMap[x][y+1].shortestWay = previousNumb + 1;
+//                testFloor.floorMap[x][y+1].previous = 0;
+//                findPart(x, y+1, previousNumb+1);
+//            }
+//        }
+//        if(testFloor.floorMap[x][y].exits[2]){
+//            System.out.println(testFloor.floorMap[x-1][y].shortestWay+", "+(previousNumb + 1)
+//                    +", "+(x-1)+", "+y);
+//            if(testFloor.floorMap[x-1][y].shortestWay > (previousNumb + 1)){
+//                testFloor.floorMap[x-1][y].shortestWay = previousNumb + 1;
+//                testFloor.floorMap[x-1][y].previous = 3;
+//                findPart(x-1, y, previousNumb+1);
+//            }
+//        }
+//        if(testFloor.floorMap[x][y].exits[3]){
+//            System.out.println(testFloor.floorMap[x+1][y].shortestWay+", "+(previousNumb + 1)
+//                    +", "+(x+1)+", "+y);
+//            if(testFloor.floorMap[x+1][y].shortestWay > (previousNumb + 1)){
+//                testFloor.floorMap[x+1][y].shortestWay = previousNumb + 1;
+//                testFloor.floorMap[x+1][y].previous = 2;
+//                findPart(x+1, y, previousNumb+1);
+//            }
+//        }
+
+        if(testFloor.floorMap[x][y].exits[0]){
+            if(findingWay[x][y-1] == 99){
+                findingWay[x][y-1] = previousNumb + 1;
+                previous[x][y-1] = 1;
+                findPart(x, y-1, previousNumb+1);
+            }
+            else if(findingWay[x][y-1] > (previousNumb + 1)){
+                findingWay[x][y-1] = previousNumb + 1;
+                previous[x][y-1] = 1;
+                findPart(x, y-1, previousNumb+1);
+            }
+        }
+        if(testFloor.floorMap[x][y].exits[1]){
+            if(findingWay[x][y+1] == 99){
+                findingWay[x][y+1] = previousNumb + 1;
+                previous[x][y+1] = 0;
+                findPart(x, y+1, previousNumb+1);
+            }
+            else if(findingWay[x][y+1] > (previousNumb + 1)){
+                findingWay[x][y+1] = previousNumb + 1;
+                previous[x][y+1] = 0;
+                findPart(x, y+1, previousNumb+1);
+            }
+        }
+        if(testFloor.floorMap[x][y].exits[2]){
+            if(findingWay[x-1][y] == 99){
+                findingWay[x-1][y] = previousNumb + 1;
+                previous[x-1][y] = 3;
+                findPart(x-1, y, previousNumb+1);
+            }
+            else if(findingWay[x-1][y] > (previousNumb + 1)){
+                findingWay[x-1][y] = previousNumb + 1;
+                previous[x-1][y] = 3;
+                findPart(x-1, y, previousNumb+1);
+            }
+        }
+        if(testFloor.floorMap[x][y].exits[3]){
+            if(findingWay[x+1][y] == 99){
+                findingWay[x+1][y] = previousNumb + 1;
+                previous[x+1][y] = 2;
+                findPart(x+1, y, previousNumb+1);
+            }
+            else if(findingWay[x+1][y] > (previousNumb + 1)){
+                findingWay[x+1][y] = previousNumb + 1;
+                previous[x+1][y] = 2;
+                findPart(x+1, y, previousNumb+1);
+            }
+        }
 
     }
 
